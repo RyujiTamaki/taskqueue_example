@@ -36,6 +36,10 @@ class MainPageHandler(webapp2.RequestHandler):
                 <input name="amount" value="1">
                 <button>Enqueue task</button>
             </form>
+            <form method="post" action="/enqueue_hoge">
+                <label>Increment 10 after 1 minute</label>
+                <button>Enqueue task</button>
+            </form>
         """.format(count=count))
 
 
@@ -75,8 +79,22 @@ class AsyncEnqueueTaskHandler(webapp2.RequestHandler):
             'Task {} enqueued, ETA {}.'.format(task.name, task.eta))
 
 
+class EnqueueHogeTaskHandler(webapp2.RequestHandler):
+    def post(self):
+
+        task = taskqueue.add(
+            queue_name='hoge',
+            url='/hoge_counter',
+            target='worker',
+            countdown=60)
+
+        self.response.write(
+            'Task {} enqueued, ETA {}.'.format(task.name, task.eta))
+
+
 app = webapp2.WSGIApplication([
     ('/', MainPageHandler),
     ('/enqueue', EnqueueTaskHandler),
-    ('/enqueue_async', AsyncEnqueueTaskHandler)
+    ('/enqueue_async', AsyncEnqueueTaskHandler),
+    ('/enqueue_hoge', EnqueueHogeTaskHandler),
 ], debug=True)
